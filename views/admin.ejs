@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+</head>
+<body>
+    <h1>Admin Panel</h1>
+
+    <!-- Form to update bot settings -->
+    <form id="botSettingsForm">
+        <label for="botName">Bot Name:</label>
+        <input type="text" id="botName" name="botName" required><br><br>
+
+        <label for="botDescription">Bot Description:</label><br>
+        <textarea id="botDescription" name="botDescription" rows="4" cols="50" required></textarea><br><br>
+
+        <label for="botStatus">Bot Status:</label>
+        <select id="botStatus" name="botStatus" required>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+        </select><br><br>
+
+        <button type="submit">Update Bot Settings</button>
+    </form>
+
+    <hr>
+
+    <!-- Display current bot settings -->
+    <h2>Current Bot Settings:</h2>
+<p><strong>Bot Name:</strong> <span id="currentBotName"></span></p>
+<p><strong>Bot Description:</strong> <span id="currentBotDescription"></span></p>
+<p><strong>Bot Status:</strong> <span id="currentBotStatus"></span></p>
+
+    <!-- JavaScript to fetch and update bot settings -->
+    <script>
+        // Function to fetch and display current bot settings
+        async function getCurrentBotSettings() {
+  try {
+    const response = await fetch('/api/botSettings'); // Fetch bot settings from MongoDB
+    const data = await response.json();
+    // Update the HTML elements with the fetched data
+    document.getElementById('currentBotName').textContent = data.botName;
+    document.getElementById('currentBotDescription').textContent = data.botDescription;
+    document.getElementById('currentBotStatus').textContent = data.botStatus;
+  } catch (error) {
+    console.error('Error fetching bot settings:', error);
+  }
+}
+
+
+        // Function to update bot settings
+        async function updateBotSettings(event) {
+    event.preventDefault();
+    const form = event.target;
+    const formData = new FormData(form);
+    const botSettings = {};
+    formData.forEach((value, key) => {
+        botSettings[key] = value;
+    });
+    console.log('Received GET request for /api/botSettings 3'); 
+    try {
+        const response = await fetch('/api/botSettings', {
+            method: 'PUT', // Use PUT to update settings
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(botSettings),
+        });
+        const data = await response.json();
+        alert('Bot settings updated successfully!');
+        getCurrentBotSettings(); // Refresh displayed settings
+    } catch (error) {
+        console.error('Error updating bot settings:', error);
+    }
+}
+        // Fetch and display current bot settings on page load
+        window.onload = () => {
+  getCurrentBotSettings();
+  document.getElementById('botSettingsForm').addEventListener('submit', updateBotSettings);
+};
+    </script>
+</body>
+</html>
